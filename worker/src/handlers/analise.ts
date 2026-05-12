@@ -12,24 +12,15 @@ function json(data: unknown, status = 200): Response {
 }
 
 const PROMPT_CORRECAO = (criterios: string) => `
-Você é um corretor especialista em redações. Analise a redação na imagem com atenção.
-Critérios fornecidos pelo professor: ${criterios}
+Você é um corretor de redações. Analise a imagem e siga estes critérios: ${criterios}
 
-Retorne SOMENTE um JSON válido (sem markdown, sem blocos de código) com esta estrutura exata:
+Retorne EXCLUSIVAMENTE um JSON:
 {
-  "nota_geral": <número de 0 a 10>,
-  "criterios": [
-    {
-      "nome": "<nome do critério>",
-      "nota": <número de 0 a 10>,
-      "comentario": "<comentário detalhado>",
-      "trechos_problematicos": ["<trecho 1>", "<trecho 2>"]
-    }
-  ],
-  "pontos_fortes": ["<ponto 1>", "<ponto 2>"],
-  "sugestoes_melhoria": ["<sugestão 1>", "<sugestão 2>"]
-}
-IMPORTANTE: Retorne APENAS o JSON, sem explicações adicionais.`;
+  "nota_geral": <0-10>,
+  "criterios": [{ "nome": "...", "nota": <0-10>, "comentario": "..." }],
+  "pontos_fortes": ["..."],
+  "sugestoes_melhoria": ["..."]
+}`;
 
 const PROMPT_DETECTOR_IA = `
 Analise cuidadosamente se esta redação foi escrita por humano ou gerada/assistida por IA.
@@ -77,10 +68,6 @@ async function callGemini(
         { inlineData: { mimeType, data: imageBase64 } },
       ],
     }],
-    generationConfig: {
-      temperature: 0.1,
-      maxOutputTokens: 4096,
-    },
   };
 
   let res: Response;
@@ -118,10 +105,6 @@ async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: st
         { inlineData: { mimeType, data: audioBase64 } },
       ],
     }],
-    generationConfig: { 
-      temperature: 0.1, 
-      maxOutputTokens: 1024,
-    },
   };
   try {
     const res = await fetchWithTimeout(url, {
@@ -270,7 +253,7 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     console.error('Falha ao parsear JSON da IA:', aiText);
     return json({ 
       error: 'A análise retornou um formato inesperado. Tente novamente.', 
-      raw: aiText.substring(0, 1000)
+      raw: aiText.substring(0, 4000)
     }, 502);
   }
 
