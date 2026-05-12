@@ -113,18 +113,20 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
   // Check user daily limit
   const today = new Date().toISOString().slice(0, 10);
   const usuario = await env.DB.prepare(
-    'SELECT analises_hoje, data_ultima_analise FROM usuarios WHERE id = ?',
-  ).bind(payload.sub).first<{ analises_hoje: number; data_ultima_analise: string | null }>();
+    'SELECT role, analises_hoje, data_ultima_analise, limite_diario FROM usuarios WHERE id = ?',
+  ).bind(payload.sub).first<{ role: string; analises_hoje: number; data_ultima_analise: string | null; limite_diario: number }>();
 
   if (!usuario) return json({ error: 'Usuário não encontrado.' }, 404);
 
-  const limiteUsuario = parseInt(env.LIMITE_ANALISES_POR_USUARIO_DIA || '5');
+  // Admin has unlimited analyses
+  const isAdmin = usuario.role === 'admin';
+  const limiteUsuario = usuario.limite_diario ?? parseInt(env.LIMITE_ANALISES_POR_USUARIO_DIA || '5');
   const isNewDay = usuario.data_ultima_analise?.slice(0, 10) !== today;
   const analisesHoje = isNewDay ? 0 : usuario.analises_hoje;
 
-  if (analisesHoje >= limiteUsuario) {
+  if (!isAdmin && analisesHoje >= limiteUsuario) {
     return json({
-      error: `Você atingiu o limite de ${limiteUsuario} análises por dia. Volte amanhã!`,
+      error: `Você atingiu o seu limite de ${limiteUsuario} análises por dia. Volte amanhã!`,
       limite: limiteUsuario,
       usadas: analisesHoje,
     }, 429);

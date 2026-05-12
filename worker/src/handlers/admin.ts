@@ -32,7 +32,7 @@ export async function handleAdminStats(request: Request, env: Env): Promise<Resp
   `).all();
 
   const usuarios = await env.DB.prepare(`
-    SELECT id, email, role, aprovado, criado_em, analises_hoje, data_ultima_analise
+    SELECT id, email, role, aprovado, criado_em, analises_hoje, data_ultima_analise, limite_diario
     FROM usuarios ORDER BY criado_em DESC
   `).all();
 
@@ -74,11 +74,19 @@ export async function handleAdminApprove(request: Request, env: Env, userId: str
   const admin = await requireAdmin(request, env);
   if (!admin) return json({ error: 'Acesso negado.' }, 403);
 
+  let limiteDiario = 5;
+  try {
+    const body = await request.json() as { limite_diario?: number };
+    if (body.limite_diario !== undefined) {
+      limiteDiario = body.limite_diario;
+    }
+  } catch (e) {}
+
   const user = await env.DB.prepare('SELECT id, email FROM usuarios WHERE id = ?').bind(userId).first<{ id: string; email: string }>();
   if (!user) return json({ error: 'Usuário não encontrado.' }, 404);
 
-  await env.DB.prepare('UPDATE usuarios SET aprovado = 1 WHERE id = ?').bind(userId).run();
-  return json({ success: true, message: `Usuário ${user.email} aprovado com sucesso.` });
+  await env.DB.prepare('UPDATE usuarios SET aprovado = 1, limite_diario = ? WHERE id = ?').bind(limiteDiario, userId).run();
+  return json({ success: true, message: `Usuário ${user.email} aprovado com limite de ${limiteDiario} análises.` });
 }
 
 export async function handleAdminRevoke(request: Request, env: Env, userId: string): Promise<Response> {

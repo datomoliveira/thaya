@@ -15,7 +15,7 @@ interface AdminStats {
     percentual_tokens: string;
   };
   ultimos_7_dias: Array<{ data: string; total_analises: number; total_tokens: number }>;
-  usuarios: Array<{ id: string; email: string; role: string; aprovado: number; criado_em: string; analises_hoje: number }>;
+  usuarios: Array<{ id: string; email: string; role: string; aprovado: number; criado_em: string; analises_hoje: number; limite_diario: number }>;
   pendentes: Array<{ id: string; email: string; criado_em: string }>;
   top_usuarios_hoje: Array<{ email: string; total: number }>;
 }
@@ -36,16 +36,23 @@ export default function Admin() {
     setStats(fresh);
   };
 
+  const [pendingLimits, setPendingLimits] = useState<Record<string, number>>({});
+
   useEffect(() => {
     if (user?.role !== 'admin') { navigate('/dashboard'); return; }
     loadStats().finally(() => setLoading(false));
   }, [user, navigate]);
 
   const handleApprove = async (userId: string, email: string) => {
+    const limit = pendingLimits[userId] || 5;
     try {
       const res = await fetch(`${API_BASE}/api/admin/approve/${userId}`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ limite_diario: limit })
       });
       const data = await res.json();
       setActionMsg(data.message || `${email} aprovado!`);
@@ -116,12 +123,25 @@ export default function Admin() {
                       Cadastrado em {new Date(p.criado_em).toLocaleString('pt-BR')}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleApprove(p.id, p.email)}
-                    className="btn-primary px-4 py-1.5 text-sm"
-                  >
-                    ✓ Aprovar
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <span className="font-body text-xs text-ink-light">Limite:</span>
+                      <input 
+                        type="number" 
+                        min="1" 
+                        max="1000"
+                        value={pendingLimits[p.id] || 5}
+                        onChange={(e) => setPendingLimits({...pendingLimits, [p.id]: parseInt(e.target.value)})}
+                        className="input-notebook w-16 px-2 py-1 text-xs"
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleApprove(p.id, p.email)}
+                      className="btn-primary px-4 py-1.5 text-sm"
+                    >
+                      ✓ Aprovar
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -208,7 +228,7 @@ export default function Admin() {
                   <th className="text-left pb-2 font-medium">E-mail</th>
                   <th className="text-left pb-2 font-medium">Role</th>
                   <th className="text-left pb-2 font-medium">Status</th>
-                  <th className="text-left pb-2 font-medium">Hoje</th>
+                  <th className="text-left pb-2 font-medium">Uso Hoje</th>
                   <th className="text-left pb-2 font-medium">Ações</th>
                 </tr>
               </thead>
@@ -226,7 +246,9 @@ export default function Admin() {
                         {u.aprovado ? '✓ Aprovado' : '⏳ Pendente'}
                       </span>
                     </td>
-                    <td className="py-2 text-ink">{u.analises_hoje}</td>
+                    <td className="py-2 text-ink">
+                      {u.role === 'admin' ? '∞' : `${u.analises_hoje} / ${u.limite_diario || 5}`}
+                    </td>
                     <td className="py-2">
                       {u.role !== 'admin' && (
                         u.aprovado ? (

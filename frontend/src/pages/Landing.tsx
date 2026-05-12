@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 
 const features = [
-  { icon: '📝', title: 'Correção por IA', desc: 'Envie a foto da redação e receba notas detalhadas, comentários e sugestões de melhoria em segundos.' },
-  { icon: '🔍', title: 'Detector de IA', desc: 'Descubra se uma redação foi escrita por humano ou gerada com IA, com análise de trechos suspeitos.' },
-  { icon: '📸', title: 'Foto direto do celular', desc: 'Tire uma foto da redação manuscrita e a IA transcreve e analisa automaticamente via OCR nativo.' },
+  { icon: '📝', title: 'Correção Automática', desc: 'Envie a foto da redação e receba notas detalhadas, comentários e sugestões de melhoria em segundos.' },
+  { icon: '🔍', title: 'Detector de Autoria', desc: 'Descubra se uma redação foi escrita por humano ou gerada por algoritmos, com análise de trechos suspeitos.' },
+  { icon: '📸', title: 'Foto direto do celular', desc: 'Tire uma foto da redação manuscrita e o sistema transcreve e analisa automaticamente via OCR.' },
   { icon: '🎙️', title: 'Critérios por voz', desc: 'Grave os critérios de correção pelo microfone — sem precisar digitar nada.' },
 ];
 
 const plans = [
-  { name: 'Gratuito', price: 'R$ 0', desc: 'Perfeito para experimentar', features: ['5 análises por dia', 'Correção e Detector IA', 'Histórico de análises', 'PWA — use no celular'], highlight: false },
+  { name: 'Gratuito', price: 'R$ 0', desc: 'Perfeito para experimentar', features: ['Correção e Detector', 'Histórico de análises', 'PWA — use no celular'], highlight: false },
 ];
 
 export default function Landing() {
@@ -33,11 +33,11 @@ export default function Landing() {
             <div className="rounded py-4 mb-6 text-left">
               <h1 className="font-display text-4xl md:text-5xl font-bold text-pen-blue leading-tight mb-4 drop-shadow-sm">
                 Corrija redações com a<br />
-                <span className="text-caramel italic">inteligência da IA</span>
+                <span className="text-caramel italic">análise inteligente</span>
               </h1>
               <p className="font-body text-ink-light text-lg leading-relaxed">
                 Tire uma foto da redação, defina os critérios e receba análise completa em segundos.
-                Também detectamos se o texto foi escrito por humano ou gerado por IA.
+                Também detectamos se o texto foi escrito por humano ou gerado artificialmente.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -49,7 +49,7 @@ export default function Landing() {
 
           {/* Mini stats */}
           <div className="flex flex-wrap justify-center gap-6 mt-8 text-center">
-            {[['~400', 'análises/dia disponíveis'], ['2 modos', 'Correção + Detector IA'], ['100% na nuvem', 'Cloudflare + Gemini']].map(([n, l]) => (
+            {[['Rápido', 'Análise em segundos'], ['2 modos', 'Correção + Detector'], ['100% na nuvem', 'Alta disponibilidade']].map(([n, l]) => (
               <div key={n} className="paper-card px-6 py-4">
                 <div className="font-display text-2xl font-bold text-caramel">{n}</div>
                 <div className="font-body text-sm text-ink-light">{l}</div>
@@ -84,8 +84,8 @@ export default function Landing() {
           <div className="space-y-6">
             {[
               { n: '1', t: 'Defina os critérios', d: 'Digite ou grave pelo microfone os critérios de correção. Use templates prontos: ENEM, Fuvest, Concurso Público ou personalize.' },
-              { n: '2', t: 'Tire uma foto da redação', d: 'Use a câmera do celular para fotografar a redação manuscrita ou impressa. O Gemini transcreve via OCR nativo.' },
-              { n: '3', t: 'Escolha o modo e analise', d: 'Modo Correção para notas e comentários, ou Modo Detector IA para verificar a autoria. Resultado em segundos.' },
+              { n: '2', t: 'Tire uma foto da redação', d: 'Use a câmera do celular para fotografar a redação manuscrita ou impressa. O sistema transcreve via OCR.' },
+              { n: '3', t: 'Escolha o modo e analise', d: 'Modo Correção para notas e comentários, ou Modo Detector para verificar a autoria. Resultado em segundos.' },
             ].map((s) => (
               <div key={s.n} className="paper-card flex gap-4 p-6">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-pen-blue text-white flex items-center justify-center font-display font-bold text-lg">{s.n}</div>
@@ -126,7 +126,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="navbar py-6 text-center">
         <p className="font-body text-amber-400/60 text-sm">
-          © 2025 Thaya · Construído com Cloudflare Workers + Gemini 2.5 Flash
+          © 2025 Thaya · Plataforma de análise textual
         </p>
       </footer>
     </div>

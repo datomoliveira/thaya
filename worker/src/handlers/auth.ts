@@ -55,8 +55,8 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
     const aprovado = isAdmin ? 1 : 0;
 
     await env.DB.prepare(
-      'INSERT INTO usuarios (id, email, senha_hash, role, aprovado) VALUES (?, ?, ?, ?, ?)',
-    ).bind(id, email, senha_hash, role, aprovado).run();
+      'INSERT INTO usuarios (id, email, senha_hash, role, aprovado, limite_diario) VALUES (?, ?, ?, ?, ?, ?)',
+    ).bind(id, email, senha_hash, role, aprovado, 5).run();
 
     if (isAdmin) {
       // Admin logs in immediately after register
