@@ -27,9 +27,9 @@ Retorne SOMENTE um JSON válido (sem markdown, sem blocos de código) com esta e
     }
   ],
   "pontos_fortes": ["<ponto 1>", "<ponto 2>"],
-  "sugestoes_melhoria": ["<sugestão 1>", "<sugestão 2>"],
-  "texto_transcrito": "<texto completo da redação transcrito da imagem>"
-}`;
+  "sugestoes_melhoria": ["<sugestão 1>", "<sugestão 2>"]
+}
+IMPORTANTE: Retorne APENAS o JSON, sem explicações adicionais.`;
 
 const PROMPT_DETECTOR_IA = `
 Analise cuidadosamente se esta redação foi escrita por humano ou gerada/assistida por IA.
@@ -77,8 +77,9 @@ async function callGemini(
       ],
     }],
     generationConfig: {
-      temperature: 0.3,
+      temperature: 0.1,
       maxOutputTokens: 4096,
+      responseMimeType: "application/json",
     },
   };
 
@@ -113,10 +114,14 @@ async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: st
     contents: [{
       parts: [
         { inlineData: { mimeType, data: audioBase64 } },
-        { text: 'Transcreva este áudio e extraia os critérios de correção mencionados. Organize cada critério em uma linha separada, usando marcador simples (ex: "- Critério"). Retorne apenas os critérios em texto simples, um por linha.' },
+        { text: 'Transcreva este áudio e extraia os critérios de correção mencionados. Retorne um JSON com a estrutura: { "criterios": ["Critério 1", "Critério 2"] }' },
       ],
     }],
-    generationConfig: { temperature: 0.2, maxOutputTokens: 1024 },
+    generationConfig: { 
+      temperature: 0.1, 
+      maxOutputTokens: 1024,
+      responseMimeType: "application/json",
+    },
   };
   try {
     const res = await fetchWithTimeout(url, {
@@ -125,7 +130,13 @@ async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: st
       body: JSON.stringify(body),
     }, 30000);
     const data = await res.json() as GeminiResponse;
-    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    try {
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed.criterios) ? parsed.criterios.join('\n') : text;
+    } catch {
+      return text;
+    }
   } catch {
     return '';
   }
