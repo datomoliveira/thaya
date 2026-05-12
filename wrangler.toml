@@ -1,0 +1,17 @@
+name = "thaya"
+main = "worker/src/index.ts"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "thaya-db"
+database_id = "c3f832a1-fba1-4fcd-b303-d8138bb44a1b"
+
+[vars]
+LIMITE_ANALISES_POR_USUARIO_DIA = "40"
+LIMITE_ANALISES_GLOBAL_DIA = "380"
+
+# Secrets (configure via GitHub Actions ou dashboard Cloudflare → Workers → thaya → Settings → Variables):
+# GEMINI_API_KEY
+# JWT_SECRET
+# ADMIN_EMAIL
