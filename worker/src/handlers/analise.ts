@@ -68,7 +68,7 @@ async function callGemini(
   mimeType: string,
   prompt: string,
 ): Promise<{ text: string; tokensUsados: number }> {
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       parts: [
@@ -108,7 +108,7 @@ async function callGemini(
 }
 
 async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       parts: [
@@ -240,13 +240,26 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     return json({ error: `Erro ao analisar: ${e instanceof Error ? e.message : 'desconhecido'}` }, 502);
   }
 
-  // Parse JSON response
+  // Parse JSON response — More robust extraction
   let resultadoJson: ResultadoCorrecao | ResultadoDetectorIA;
   try {
-    const cleaned = aiText.replace(/```json\n?|\n?```/g, '').trim();
+    // Find the first { and last } to handle cases where AI includes text before/after code blocks
+    const startIdx = aiText.indexOf('{');
+    const endIdx = aiText.lastIndexOf('}');
+    
+    if (startIdx === -1 || endIdx === -1) {
+      throw new Error('JSON não encontrado na resposta');
+    }
+    
+    const cleaned = aiText.substring(startIdx, endIdx + 1);
     resultadoJson = JSON.parse(cleaned);
-  } catch {
-    return json({ error: 'A análise retornou um formato inesperado. Tente novamente.', raw: aiText }, 502);
+  } catch (e) {
+    console.error('Falha ao parsear JSON da IA:', aiText);
+    return json({ 
+      error: 'A análise retornou um formato inesperado. Tente novamente.', 
+      detalhe: e instanceof Error ? e.message : 'Erro de sintaxe JSON',
+      raw: aiText.substring(0, 1000) // Return first 1000 chars for debugging
+    }, 502);
   }
 
   // Save to D1
