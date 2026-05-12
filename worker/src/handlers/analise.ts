@@ -50,6 +50,18 @@ Retorne SOMENTE um JSON válido (sem markdown, sem blocos de código) com esta e
   "explicacao": "<explicação detalhada da análise>"
 }`;
 
+// Fetch with timeout helper — Cloudflare Workers can hit 30s CPU limits
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 55000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...init, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function callGemini(
   apiKey: string,
   imageBase64: string,
@@ -70,15 +82,23 @@ async function callGemini(
     },
   };
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  let res: Response;
+  try {
+    res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }, 55000);
+  } catch (e: unknown) {
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new Error('Tempo limite de resposta da API excedido. Tente novamente.');
+    }
+    throw new Error(`Falha na conexão com a API de análise: ${e instanceof Error ? e.message : String(e)}`);
+  }
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Gemini API error ${res.status}: ${err}`);
+    throw new Error(`API de análise retornou erro ${res.status}: ${err}`);
   }
 
   const data = await res.json() as GeminiResponse;
@@ -93,14 +113,49 @@ async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: st
     contents: [{
       parts: [
         { inlineData: { mimeType, data: audioBase64 } },
-        { text: 'Transcreva este áudio e extraia os critérios de correção mencionados. Retorne apenas os critérios em texto simples.' },
+        { text: 'Transcreva este áudio e extraia os critérios de correção mencionados. Organize cada critério em uma linha separada, usando marcador simples (ex: "- Critério"). Retorne apenas os critérios em texto simples, um por linha.' },
       ],
     }],
     generationConfig: { temperature: 0.2, maxOutputTokens: 1024 },
   };
-  const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-  const data = await res.json() as GeminiResponse;
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }, 30000);
+    const data = await res.json() as GeminiResponse;
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  } catch {
+    return '';
+  }
+}
+
+// ===== NEW: Standalone audio transcription endpoint =====
+export async function handleTranscribeAudio(request: Request, env: Env): Promise<Response> {
+  const token = extractToken(request);
+  if (!token) return json({ error: 'Não autenticado.' }, 401);
+  const payload = await verifyJWT(token, env.JWT_SECRET);
+  if (!payload) return json({ error: 'Token inválido ou expirado.' }, 401);
+
+  let body: { audio_base64: string; audio_mime_type: string };
+  try {
+    body = await request.json();
+  } catch {
+    return json({ error: 'Body inválido.' }, 400);
+  }
+
+  const { audio_base64, audio_mime_type } = body;
+  if (!audio_base64 || !audio_mime_type) {
+    return json({ error: 'Campos obrigatórios: audio_base64, audio_mime_type.' }, 400);
+  }
+
+  try {
+    const transcricao = await transcribeAudio(env.GEMINI_API_KEY, audio_base64, audio_mime_type);
+    return json({ transcricao });
+  } catch (e) {
+    return json({ error: `Erro ao transcrever áudio: ${e instanceof Error ? e.message : 'desconhecido'}` }, 502);
+  }
 }
 
 export async function handleNovaAnalise(request: Request, env: Env): Promise<Response> {
@@ -159,9 +214,9 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     return json({ error: 'Campos obrigatórios: imagem_base64, mime_type, modo.' }, 400);
   }
 
-  // Audio transcription if provided
+  // Audio transcription if provided (only if criterios not already filled by frontend preview)
   let criterios = criteriosRaw || '';
-  if (audio_base64 && audio_mime_type) {
+  if (audio_base64 && audio_mime_type && !criterios) {
     try {
       criterios = await transcribeAudio(env.GEMINI_API_KEY, audio_base64, audio_mime_type);
     } catch {
@@ -174,24 +229,24 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     ? PROMPT_CORRECAO(criterios || 'Critérios gerais de boa escrita: coesão, coerência, gramática, argumentação, clareza.')
     : PROMPT_DETECTOR_IA;
 
-  // Call Gemini
-  let geminiText: string;
+  // Call AI
+  let aiText: string;
   let tokensUsados: number;
   try {
     const result = await callGemini(env.GEMINI_API_KEY, imagem_base64, mime_type, prompt);
-    geminiText = result.text;
+    aiText = result.text;
     tokensUsados = result.tokensUsados;
   } catch (e) {
-    return json({ error: `Erro ao chamar IA: ${e instanceof Error ? e.message : 'desconhecido'}` }, 502);
+    return json({ error: `Erro ao analisar: ${e instanceof Error ? e.message : 'desconhecido'}` }, 502);
   }
 
   // Parse JSON response
   let resultadoJson: ResultadoCorrecao | ResultadoDetectorIA;
   try {
-    const cleaned = geminiText.replace(/```json\n?|\n?```/g, '').trim();
+    const cleaned = aiText.replace(/```json\n?|\n?```/g, '').trim();
     resultadoJson = JSON.parse(cleaned);
   } catch {
-    return json({ error: 'IA retornou resposta inválida. Tente novamente.', raw: geminiText }, 502);
+    return json({ error: 'A análise retornou um formato inesperado. Tente novamente.', raw: aiText }, 502);
   }
 
   // Save to D1

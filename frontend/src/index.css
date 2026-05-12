@@ -21,6 +21,10 @@
   --ink: #261612;
   --ink-light: #4A332A;
   --shadow-color: rgba(61, 43, 31, 0.4);
+  /* Spiral */
+  --spiral-width: 52px;
+  --spiral-color: #888;
+  --spiral-ring-color: #aaa;
 }
 
 /* ===== Base ===== */
@@ -33,7 +37,6 @@ body {
   background-color: var(--leather);
   color: var(--ink);
   min-height: 100vh;
-  /* Deep textured leather background */
   background-image: 
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E"), 
     linear-gradient(135deg, var(--leather) 0%, #2A1C12 100%);
@@ -43,7 +46,106 @@ body {
 /* ===== Layout ===== */
 #root { min-height: 100vh; padding-bottom: 3rem; }
 
-/* ===== Leather Container (Optional usage for main wrappers) ===== */
+/* ===== NOTEBOOK LAYOUT — spiral on left side ===== */
+/* 
+  Pages inside the app (bg-cream) are designed to look like a spiral notebook.
+  The spiral binding is rendered as a fixed/sticky left strip with rings. 
+*/
+
+/* Notebook wrapper — wraps all inner pages */
+.notebook-page {
+  position: relative;
+  min-height: 100vh;
+  background-color: var(--cream);
+  /* Offset content to the right to give space for spiral */
+  padding-left: calc(var(--spiral-width) + 16px);
+}
+
+/* The spiral strip itself */
+.notebook-page::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--spiral-width);
+  background: linear-gradient(180deg, #9E9E9E 0%, #757575 40%, #9E9E9E 100%);
+  box-shadow: 4px 0 12px rgba(0,0,0,0.5), inset -2px 0 4px rgba(0,0,0,0.3);
+  z-index: 40;
+  /* Repeating circle rings */
+  background-image:
+    radial-gradient(ellipse 18px 20px at 50% 0px, #e0e0e0 0%, #bdbdbd 40%, #9e9e9e 100%),
+    linear-gradient(180deg, #9E9E9E 0%, #757575 40%, #9E9E9E 100%);
+}
+
+/* Spiral rings — using a pseudo CSS pattern */
+.notebook-page::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--spiral-width);
+  z-index: 41;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0px,
+    transparent 26px,
+    rgba(0,0,0,0.18) 26px,
+    rgba(0,0,0,0.18) 27px,
+    transparent 27px,
+    transparent 34px,
+    rgba(255,255,255,0.15) 34px,
+    rgba(255,255,255,0.15) 35px,
+    transparent 35px,
+    transparent 46px
+  );
+  pointer-events: none;
+}
+
+/* Rings rendered as SVG circles overlaid */
+.spiral-rings {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--spiral-width);
+  z-index: 42;
+  overflow: hidden;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 28px;
+}
+
+.spiral-ring {
+  width: 34px;
+  height: 22px;
+  border: 4px solid #616161;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #bdbdbd 0%, #757575 100%);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.5),
+    inset 0 1px 2px rgba(255,255,255,0.4),
+    inset 0 -1px 2px rgba(0,0,0,0.3);
+  flex-shrink: 0;
+}
+
+/* Red margin line on left side of page area */
+.notebook-margin {
+  position: fixed;
+  left: calc(var(--spiral-width) + 30px);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(179, 45, 32, 0.35);
+  z-index: 39;
+  pointer-events: none;
+}
+
+/* ===== Leather Container ===== */
 .leather-container {
   background: var(--leather);
   border-radius: 12px;
@@ -476,3 +578,26 @@ body {
 .bg-ivory { background-color: var(--ivory); }
 .border-parchment { border-color: var(--border); }
 
+/* ===== Notebook inner page bg (off-white) for inner routes ===== */
+/* Applied via class on pages that are "inside" the notebook */
+.notebook-inner-bg {
+  background-color: var(--ivory);
+  /* Subtle paper texture */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* Horizontal notebook lines across inner pages */
+.notebook-lines-bg {
+  background-color: var(--ivory);
+  background-image:
+    linear-gradient(transparent calc(2.5rem - 1px), rgba(42,90,140,0.12) calc(2.5rem - 1px), rgba(42,90,140,0.12) 2.5rem, transparent 2.5rem);
+  background-size: 100% 2.5rem;
+}
+
+/* ===== Spiral animation (shimmer) ===== */
+@keyframes ring-shine {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+.spiral-ring:nth-child(odd) { animation: ring-shine 3s ease-in-out infinite; }
+.spiral-ring:nth-child(even) { animation: ring-shine 3s ease-in-out 1.5s infinite; }

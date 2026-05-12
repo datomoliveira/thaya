@@ -88,7 +88,7 @@ export default function Admin() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-cream flex items-center justify-center">
+    <div className="min-h-screen notebook-lines-bg flex items-center justify-center" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
       <span className="loading-pen text-4xl">✒️</span>
     </div>
   );
@@ -97,7 +97,7 @@ export default function Admin() {
   const { hoje, ultimos_7_dias, usuarios, pendentes, top_usuarios_hoje } = stats;
 
   return (
-    <div className="min-h-screen bg-cream py-8 px-4 page-enter">
+    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
       <div className="max-w-5xl mx-auto">
         <h1 className="font-display text-3xl font-bold text-pen-blue mb-8">⚙️ Painel Admin</h1>
 
@@ -175,7 +175,7 @@ export default function Admin() {
               style={{ width: `${hoje.percentual_analises}%` }} />
           </div>
           <div className="flex justify-between mb-2">
-            <h3 className="font-display font-semibold text-pen-blue">Tokens Gemini (hoje)</h3>
+            <h3 className="font-display font-semibold text-pen-blue">Tokens de Análise (hoje)</h3>
             <span className="font-body text-sm text-ink-light">{hoje.percentual_tokens}%</span>
           </div>
           <div className="progress-track">

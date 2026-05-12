@@ -8,6 +8,7 @@ import Resultado from './pages/Resultado';
 import Historico from './pages/Historico';
 import Admin from './pages/Admin';
 import Navbar from './components/Navbar';
+import SpiralBinding from './components/SpiralBinding';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -32,7 +33,12 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <>
-      {user && <Navbar />}
+      {user && (
+        <>
+          <SpiralBinding />
+          <Navbar />
+        </>
+      )}
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Landing />} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <Auth />} />

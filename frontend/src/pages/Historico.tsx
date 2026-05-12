@@ -20,7 +20,7 @@ export default function Historico() {
   }, [apiFetch, filter]);
 
   return (
-    <div className="min-h-screen bg-cream py-8 px-4 page-enter">
+    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="font-display text-2xl font-bold text-pen-blue">Histórico de Análises</h1>

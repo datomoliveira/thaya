@@ -1,5 +1,5 @@
 import { handleRegister, handleLogin } from './handlers/auth';
-import { handleNovaAnalise, handleGetAnalise } from './handlers/analise';
+import { handleNovaAnalise, handleGetAnalise, handleTranscribeAudio } from './handlers/analise';
 import { handleHistorico, handleUserStats } from './handlers/historico';
 import { handleAdminStats, handleAdminApprove, handleAdminRevoke, handleAdminReset } from './handlers/admin';
 import type { Env } from './types';
@@ -43,6 +43,7 @@ export default {
 
       // Analysis
       if (path === '/api/analise' && method === 'POST') return cors(await handleNovaAnalise(request, env));
+      if (path === '/api/transcribe' && method === 'POST') return cors(await handleTranscribeAudio(request, env));
       const analiseMatch = path.match(/^\/api\/analise\/([a-f0-9-]+)$/);
       if (analiseMatch && method === 'GET') return cors(await handleGetAnalise(request, env, analiseMatch[1]));
 

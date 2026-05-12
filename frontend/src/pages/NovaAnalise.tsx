@@ -40,12 +40,15 @@ export default function NovaAnalise() {
   const [error, setError] = useState('');
   const [gravando, setGravando] = useState(false);
   const [audioBase64, setAudioBase64] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [transcricao, setTranscricao] = useState<string | null>(null);
+  const [transcrevendo, setTranscrevendo] = useState(false);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const API_BASE = import.meta.env.VITE_API_URL || '';
 
-  // Photo capture
+  // Photo / file handler
   const handleFile = useCallback((file: File) => {
     const mime = file.type || 'image/jpeg';
     setImagemMime(mime);
@@ -53,7 +56,6 @@ export default function NovaAnalise() {
     reader.onload = (e) => {
       const dataUrl = e.target?.result as string;
       setPreviewUrl(dataUrl);
-      // Extract base64 part only
       setImagem(dataUrl.split(',')[1]);
     };
     reader.readAsDataURL(file);
@@ -62,6 +64,32 @@ export default function NovaAnalise() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) handleFile(file);
+    // Reset input so same file can be selected again
+    e.target.value = '';
+  };
+
+  // Transcribe audio via worker endpoint
+  const transcribeAudioPreview = async (b64: string) => {
+    setTranscrevendo(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/transcribe`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ audio_base64: b64, audio_mime_type: 'audio/webm' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTranscricao(data.transcricao || null);
+        if (data.transcricao) setCriterios(data.transcricao);
+      }
+    } catch {
+      // silently fail — transcription preview is best-effort
+    } finally {
+      setTranscrevendo(false);
+    }
   };
 
   // Audio recording
@@ -77,6 +105,7 @@ export default function NovaAnalise() {
         reader.onload = (ev) => {
           const b64 = (ev.target?.result as string).split(',')[1];
           setAudioBase64(b64);
+          transcribeAudioPreview(b64);
         };
         reader.readAsDataURL(blob);
         stream.getTracks().forEach((t) => t.stop());
@@ -84,6 +113,7 @@ export default function NovaAnalise() {
       mr.start();
       mediaRecorderRef.current = mr;
       setGravando(true);
+      setTranscricao(null);
     } catch {
       setError('Não foi possível acessar o microfone.');
     }
@@ -96,7 +126,7 @@ export default function NovaAnalise() {
 
   // Submit
   const handleAnalise = async () => {
-    if (!imagem) { setError('Adicione a foto da redação.'); return; }
+    if (!imagem) { setError('Adicione a foto ou arquivo da redação.'); return; }
     setLoading(true);
     setError('');
     try {
@@ -143,7 +173,7 @@ export default function NovaAnalise() {
   );
 
   return (
-    <div className="min-h-screen bg-cream py-8 px-4 page-enter">
+    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
       <div className="max-w-2xl mx-auto">
         <h1 className="font-display text-2xl font-bold text-pen-blue mb-6 text-center">Nova Análise</h1>
         <WizardSteps />
@@ -177,19 +207,38 @@ export default function NovaAnalise() {
               />
             </div>
 
-            {/* Audio */}
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onMouseDown={startRecording}
-                onMouseUp={stopRecording}
-                onTouchStart={startRecording}
-                onTouchEnd={stopRecording}
-                className={`btn-secondary px-4 py-2 text-sm ${gravando ? 'bg-red-100 border-red-300' : ''}`}
-              >
-                {gravando ? '🔴 Gravando... (solte para parar)' : '🎙️ Gravar critérios (segure)'}
-              </button>
-              {audioBase64 && <span className="font-body text-xs text-green-700">✓ Áudio gravado</span>}
+            {/* Audio recording */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onMouseDown={startRecording}
+                  onMouseUp={stopRecording}
+                  onTouchStart={startRecording}
+                  onTouchEnd={stopRecording}
+                  className={`btn-secondary px-4 py-2 text-sm ${gravando ? 'bg-red-100 border-red-300' : ''}`}
+                >
+                  {gravando ? '🔴 Gravando... (solte para parar)' : '🎙️ Gravar critérios (segure)'}
+                </button>
+                {audioBase64 && !transcrevendo && <span className="font-body text-xs text-green-700">✓ Áudio gravado</span>}
+                {transcrevendo && <span className="font-body text-xs text-caramel animate-pulse">⏳ Transcrevendo...</span>}
+              </div>
+
+              {/* Transcription preview */}
+              {transcricao && !transcrevendo && (
+                <div className="paper-card bg-parchment/40 p-4 rounded space-y-2">
+                  <p className="font-body text-xs font-semibold text-pen-blue mb-1">📝 Transcrição do áudio — confira se está correto:</p>
+                  <ul className="space-y-1">
+                    {transcricao.split('\n').filter(l => l.trim()).map((line, i) => (
+                      <li key={i} className="font-body text-sm text-ink flex gap-2">
+                        <span className="text-caramel flex-shrink-0">•</span>
+                        <span>{line.replace(/^[-•*\d.]+\s*/, '')}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="font-body text-xs text-ink-light mt-2 italic">O texto acima foi preenchido nos critérios. Edite se necessário.</p>
+                </div>
+              )}
             </div>
 
             <button onClick={() => setStep(2)} className="btn-primary w-full justify-center px-6 py-3">
@@ -198,10 +247,13 @@ export default function NovaAnalise() {
           </div>
         )}
 
-        {/* Step 2 — Capturar foto */}
+        {/* Step 2 — Capturar foto ou upload */}
         {step === 2 && (
           <div className="paper-card folded p-6 space-y-5">
             <h2 className="font-display text-xl font-semibold text-pen-blue">Etapa 2 — Foto da Redação</h2>
+            <p className="font-body text-sm text-ink-light">
+              Use a câmera do celular para fotografar a redação manuscrita ou impressa ou faça upload da imagem ou arquivo.
+            </p>
 
             {previewUrl ? (
               <div className="relative">
@@ -209,43 +261,63 @@ export default function NovaAnalise() {
                 <div className="absolute top-2 left-2 bg-white/80 backdrop-blur text-xs font-body px-2 py-1 rounded">📄 Redação capturada</div>
               </div>
             ) : (
-              <div
-                className="border-2 border-dashed border-parchment rounded-lg p-12 text-center cursor-pointer hover:border-caramel transition-colors"
-                onClick={() => fileInputRef.current?.click()}
-              >
+              <div className="border-2 border-dashed border-parchment rounded-lg p-10 text-center">
                 <div className="text-5xl mb-3">📷</div>
-                <p className="font-display text-lg font-semibold text-pen-blue">Tirar foto ou enviar imagem</p>
-                <p className="font-body text-sm text-ink-light mt-1">Toque para abrir a câmera ou galeria</p>
+                <p className="font-display text-base font-semibold text-pen-blue">Tirar foto ou fazer upload</p>
+                <p className="font-body text-sm text-ink-light mt-1">Escolha uma das opções abaixo</p>
               </div>
             )}
 
+            {/* Hidden inputs */}
+            {/* Camera input — uses capture to open camera on mobile */}
             <input
-              ref={fileInputRef}
+              ref={cameraInputRef}
               type="file"
               accept="image/*"
               capture="environment"
               className="hidden"
               onChange={handleFileChange}
             />
+            {/* Upload input — no capture, opens file picker / gallery */}
+            <input
+              ref={uploadInputRef}
+              type="file"
+              accept="image/*,application/pdf,.jpg,.jpeg,.png,.webp,.heic,.pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
 
-            <div className="flex gap-3">
-              {previewUrl && (
-                <button
-                  type="button"
-                  onClick={() => { setImagem(null); setPreviewUrl(null); fileInputRef.current?.click(); }}
-                  className="btn-secondary px-4 py-2 text-sm flex-1 justify-center"
-                >
-                  🔄 Refazer foto
-                </button>
-              )}
+            {/* Action buttons */}
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="btn-secondary px-4 py-2 text-sm flex-1 justify-center"
+                onClick={() => cameraInputRef.current?.click()}
+                className="btn-secondary px-4 py-3 text-sm flex-col gap-1 h-auto"
+                style={{ flexDirection: 'column' }}
               >
-                📷 {previewUrl ? 'Trocar imagem' : 'Tirar foto'}
+                <span className="text-2xl">📸</span>
+                <span>Câmera</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => uploadInputRef.current?.click()}
+                className="btn-secondary px-4 py-3 text-sm flex-col gap-1 h-auto"
+                style={{ flexDirection: 'column' }}
+              >
+                <span className="text-2xl">📂</span>
+                <span>Upload</span>
               </button>
             </div>
+
+            {previewUrl && (
+              <button
+                type="button"
+                onClick={() => { setImagem(null); setPreviewUrl(null); }}
+                className="btn-secondary px-4 py-2 text-sm w-full justify-center"
+              >
+                🔄 Remover e escolher outro arquivo
+              </button>
+            )}
 
             <div className="flex gap-3">
               <button onClick={() => setStep(1)} className="btn-secondary px-4 py-2 text-sm flex-1 justify-center">← Voltar</button>
@@ -298,7 +370,7 @@ export default function NovaAnalise() {
               <div className="text-center py-8">
                 <div className="loading-pen text-4xl">✒️</div>
                 <p className="font-display text-lg font-semibold text-pen-blue mt-4">Analisando redação...</p>
-                <p className="font-body text-sm text-ink-light mt-1">O Gemini está lendo e avaliando. Aguarde.</p>
+                <p className="font-body text-sm text-ink-light mt-1">A análise está em andamento. Aguarde.</p>
               </div>
             ) : (
               <div className="flex gap-3">

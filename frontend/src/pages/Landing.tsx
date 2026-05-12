@@ -84,7 +84,7 @@ export default function Landing() {
           <div className="space-y-6">
             {[
               { n: '1', t: 'Defina os critérios', d: 'Digite ou grave pelo microfone os critérios de correção. Use templates prontos: ENEM, Fuvest, Concurso Público ou personalize.' },
-              { n: '2', t: 'Tire uma foto da redação', d: 'Use a câmera do celular para fotografar a redação manuscrita ou impressa. O sistema transcreve via OCR.' },
+              { n: '2', t: 'Tire uma foto da redação', d: 'Use a câmera do celular para fotografar a redação manuscrita ou impressa ou faça upload da imagem ou arquivo.' },
               { n: '3', t: 'Escolha o modo e analise', d: 'Modo Correção para notas e comentários, ou Modo Detector para verificar a autoria. Resultado em segundos.' },
             ].map((s) => (
               <div key={s.n} className="paper-card flex gap-4 p-6">

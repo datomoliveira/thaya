@@ -17,7 +17,7 @@ export default function Dashboard() {
   const progressClass = usedPct >= 80 ? 'danger' : usedPct >= 50 ? 'warning' : 'success';
 
   return (
-    <div className="min-h-screen bg-cream py-8 px-4 page-enter">
+    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -77,15 +77,15 @@ export default function Dashboard() {
         {/* Modes explainer */}
         <div className="mt-8 grid sm:grid-cols-2 gap-5">
           <div className="paper-card p-6 border-l-4 border-pen-blue">
-            <h3 className="font-display text-lg font-bold text-pen-blue mb-2">✏️ Modo Correção</h3>
+            <h3 className="font-display text-lg font-bold text-pen-blue mb-2">🖊️ Modo Correção</h3>
             <p className="font-body text-sm text-ink-light leading-relaxed">
-              A IA analisa a redação com base nos seus critérios e retorna nota geral, avaliação por critério, pontos fortes e sugestões em estilo de laudo.
+              Analisa a redação com base nos seus critérios e retorna nota geral, avaliação por critério, pontos fortes e sugestões em estilo de laudo.
             </p>
           </div>
           <div className="paper-card p-6 border-l-4 border-correction-red">
             <h3 className="font-display text-lg font-bold text-correction-red mb-2">🔍 Modo Detector IA</h3>
             <p className="font-body text-sm text-ink-light leading-relaxed">
-              A IA verifica se o texto foi escrito por humano ou gerado por IA, mostrando trechos suspeitos com sugestões de humanização.
+              Verifica se o texto foi escrito por humano ou gerado por IA, mostrando trechos suspeitos com sugestões de humanização.
             </p>
           </div>
         </div>
@@ -96,7 +96,7 @@ export default function Dashboard() {
               <span className="text-2xl">⚙️</span>
               <div>
                 <div className="font-display font-semibold text-caramel">Painel Administrativo</div>
-                <div className="font-body text-xs text-ink-light">Estatísticas de uso, usuários e tokens Gemini</div>
+                <div className="font-body text-xs text-ink-light">Estatísticas de uso, usuários e tokens de análise</div>
               </div>
               <span className="ml-auto text-caramel">→</span>
             </Link>

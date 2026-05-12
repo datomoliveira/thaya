@@ -11,7 +11,7 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="navbar sticky top-0 z-50 px-4 py-3">
+    <nav className="navbar sticky top-0 z-50 px-4 py-3" style={{ paddingLeft: 'calc(52px + 16px)' }}>
       <div className="max-w-5xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link to="/dashboard" className="flex items-center gap-2 no-underline">
