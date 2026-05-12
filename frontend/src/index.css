@@ -59,10 +59,6 @@ body {
     padding-right: 40px;
   }
 }
-    transparent 46px
-  );
-  pointer-events: none;
-}
 
 /* Rings rendered as SVG circles overlaid (Deprecated in favor of SpiralBinding.tsx) */
 .spiral-rings, .spiral-ring { display: none; }
