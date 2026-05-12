@@ -51,7 +51,7 @@ Retorne SOMENTE um JSON válido (sem markdown, sem blocos de código) com esta e
 }`;
 
 // Fetch with timeout helper — Cloudflare Workers can hit 30s CPU limits
-async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 55000): Promise<Response> {
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs = 25000): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -68,7 +68,7 @@ async function callGemini(
   mimeType: string,
   prompt: string,
 ): Promise<{ text: string; tokensUsados: number }> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       parts: [
@@ -88,7 +88,7 @@ async function callGemini(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-    }, 55000);
+    }, 25000);
   } catch (e: unknown) {
     if (e instanceof Error && e.name === 'AbortError') {
       throw new Error('Tempo limite de resposta da API excedido. Tente novamente.');
@@ -108,7 +108,7 @@ async function callGemini(
 }
 
 async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       parts: [

@@ -33,12 +33,8 @@ function AppRoutes() {
   const { user } = useAuth();
   return (
     <>
-      {user && (
-        <>
-          <SpiralBinding />
-          <Navbar />
-        </>
-      )}
+      <SpiralBinding />
+      {user && <Navbar />}
       <Routes>
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Landing />} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <Auth />} />

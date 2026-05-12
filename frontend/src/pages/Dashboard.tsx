@@ -17,7 +17,7 @@ export default function Dashboard() {
   const progressClass = usedPct >= 80 ? 'danger' : usedPct >= 50 ? 'warning' : 'success';
 
   return (
-    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
+    <div className="min-h-screen notebook-layout notebook-lines-bg py-8 px-4 page-enter">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">

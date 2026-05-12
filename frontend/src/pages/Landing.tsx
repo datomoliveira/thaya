@@ -13,7 +13,7 @@ const plans = [
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen notebook-layout bg-cream">
       {/* Header */}
       <header className="navbar px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">

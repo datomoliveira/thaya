@@ -202,7 +202,7 @@ export default function Resultado() {
   }, [id, apiFetch]);
 
   if (loading) return (
-    <div className="min-h-screen notebook-lines-bg flex items-center justify-center" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
+    <div className="min-h-screen notebook-layout notebook-lines-bg flex items-center justify-center">
       <div className="text-center">
         <span className="loading-pen text-5xl">✒️</span>
         <p className="font-body text-caramel mt-4">Carregando resultado...</p>
@@ -211,7 +211,7 @@ export default function Resultado() {
   );
 
   if (error || !analise) return (
-    <div className="min-h-screen notebook-lines-bg flex items-center justify-center px-4" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
+    <div className="min-h-screen notebook-layout notebook-lines-bg flex items-center justify-center px-4">
       <div className="paper-card p-8 text-center max-w-sm">
         <div className="text-4xl mb-4">❌</div>
         <h2 className="font-display text-xl text-correction-red mb-2">Erro ao carregar</h2>
@@ -225,7 +225,7 @@ export default function Resultado() {
   const isCorrecao = analise.modo === 'correcao';
 
   return (
-    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
+    <div className="min-h-screen notebook-layout notebook-lines-bg py-8 px-4 page-enter">
       <div className="max-w-3xl mx-auto">
         {/* Header letterhead */}
         <div className="paper-card p-6 mb-6 text-center border-b-4 border-pen-blue">

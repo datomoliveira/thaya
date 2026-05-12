@@ -173,7 +173,7 @@ export default function NovaAnalise() {
   );
 
   return (
-    <div className="min-h-screen notebook-lines-bg py-8 px-4 page-enter" style={{ paddingLeft: 'calc(52px + 24px + 16px)' }}>
+    <div className="min-h-screen notebook-layout notebook-lines-bg py-8 px-4 page-enter">
       <div className="max-w-2xl mx-auto">
         <h1 className="font-display text-2xl font-bold text-pen-blue mb-6 text-center">Nova Análise</h1>
         <WizardSteps />

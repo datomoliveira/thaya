@@ -74,7 +74,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen notebook-layout bg-cream flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm page-enter">
         {/* Logo */}
         <div className="text-center mb-8">
