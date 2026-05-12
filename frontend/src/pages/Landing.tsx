@@ -29,9 +29,9 @@ export default function Landing() {
       <section className="relative overflow-hidden py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="paper-card folded inline-block px-8 py-12 mb-8 w-full max-w-2xl">
-            {/* Ruled lines decoration */}
-            <div className="lined-paper rounded p-6 mb-6 text-left">
-              <h1 className="font-display text-3xl md:text-5xl font-bold text-pen-blue leading-tight mb-4">
+            {/* Clean paper area without lines for the large title */}
+            <div className="rounded py-4 mb-6 text-left">
+              <h1 className="font-display text-4xl md:text-5xl font-bold text-pen-blue leading-tight mb-4 drop-shadow-sm">
                 Corrija redações com a<br />
                 <span className="text-caramel italic">inteligência da IA</span>
               </h1>
