@@ -68,18 +68,18 @@ async function callGemini(
   mimeType: string,
   prompt: string,
 ): Promise<{ text: string; tokensUsados: number }> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
+      role: 'user',
       parts: [
-        { inlineData: { mimeType, data: imageBase64 } },
         { text: prompt },
+        { inlineData: { mimeType, data: imageBase64 } },
       ],
     }],
     generationConfig: {
       temperature: 0.1,
       maxOutputTokens: 4096,
-      responseMimeType: "application/json",
     },
   };
 
@@ -109,18 +109,18 @@ async function callGemini(
 }
 
 async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
+      role: 'user',
       parts: [
-        { inlineData: { mimeType, data: audioBase64 } },
         { text: 'Transcreva este áudio e extraia os critérios de correção mencionados. Retorne um JSON com a estrutura: { "criterios": ["Critério 1", "Critério 2"] }' },
+        { inlineData: { mimeType, data: audioBase64 } },
       ],
     }],
     generationConfig: { 
       temperature: 0.1, 
       maxOutputTokens: 1024,
-      responseMimeType: "application/json",
     },
   };
   try {
@@ -251,25 +251,26 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     return json({ error: `Erro ao analisar: ${e instanceof Error ? e.message : 'desconhecido'}` }, 502);
   }
 
-  // Parse JSON response — More robust extraction
+  // Parse JSON response — tmskin style cleaning
   let resultadoJson: ResultadoCorrecao | ResultadoDetectorIA;
   try {
-    // Find the first { and last } to handle cases where AI includes text before/after code blocks
-    const startIdx = aiText.indexOf('{');
-    const endIdx = aiText.lastIndexOf('}');
+    let responseText = aiText;
+    // Limpar possíveis blocos de código markdown
+    responseText = responseText.replace(/```json\n?/, '').replace(/```\n?/, '').trim();
     
-    if (startIdx === -1 || endIdx === -1) {
-      throw new Error('JSON não encontrado na resposta');
+    // Fallback if there's still junk (like my previous index search)
+    const startIdx = responseText.indexOf('{');
+    const endIdx = responseText.lastIndexOf('}');
+    if (startIdx !== -1 && endIdx !== -1) {
+      responseText = responseText.substring(startIdx, endIdx + 1);
     }
     
-    const cleaned = aiText.substring(startIdx, endIdx + 1);
-    resultadoJson = JSON.parse(cleaned);
+    resultadoJson = JSON.parse(responseText);
   } catch (e) {
     console.error('Falha ao parsear JSON da IA:', aiText);
     return json({ 
       error: 'A análise retornou um formato inesperado. Tente novamente.', 
-      detalhe: e instanceof Error ? e.message : 'Erro de sintaxe JSON',
-      raw: aiText.substring(0, 1000) // Return first 1000 chars for debugging
+      raw: aiText.substring(0, 1000)
     }, 502);
   }
 
