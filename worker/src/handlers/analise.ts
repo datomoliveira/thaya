@@ -13,11 +13,18 @@ function json(data: unknown, status = 200): Response {
 
 const PROMPT_CORRECAO = (criterios: string) => `
 Analise a redação seguindo estes critérios: ${criterios}
-Seja ultra-conciso nos comentários. Não use introduções.
+Seja ultra-conciso. Se houver erros ortográficos ou gramaticais, cite-os nos 'trechos_problematicos'.
 Retorne APENAS um JSON (formato estrito):
 {
   "nota_geral": <0-10>,
-  "criterios": [{ "nome": "...", "nota": <0-10>, "comentario": "breve comentário" }],
+  "criterios": [
+    { 
+      "nome": "...", 
+      "nota": <0-10>, 
+      "comentario": "breve feedback",
+      "trechos_problematicos": ["erro 1", "erro 2"] 
+    }
+  ],
   "pontos_fortes": ["..."],
   "sugestoes_melhoria": ["..."]
 }`;
