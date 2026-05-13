@@ -70,7 +70,7 @@ async function callGemini(
     }],
     generationConfig: {
       temperature: 0.1,
-      maxOutputTokens: 2048,
+      maxOutputTokens: 6000,
       response_mime_type: "application/json",
     },
     safetySettings: [
