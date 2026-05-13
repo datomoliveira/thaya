@@ -277,7 +277,7 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
   let aiText: string;
   let tokensUsados: number;
   try {
-    const modelToUse = modo === 'correcao' ? 'gemini-2.5-flash' : 'gemini-2.0-flash';
+    const modelToUse = 'gemini-2.5-flash';
     const maxTokensToUse = modo === 'correcao' ? 6000 : 1024;
     
     const result = await callGemini(env.GEMINI_API_KEY, imagem_base64, mime_type, prompt, modelToUse, maxTokensToUse);
