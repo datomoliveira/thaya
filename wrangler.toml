@@ -15,3 +15,7 @@ LIMITE_ANALISES_GLOBAL_DIA = "380"
 # GEMINI_API_KEY
 # JWT_SECRET
 # ADMIN_EMAIL
+
+[observability.logs]
+enabled = true
+invocation_logs = true

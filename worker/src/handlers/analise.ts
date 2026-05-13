@@ -257,29 +257,32 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     return json({ error: `Erro ao analisar: ${e instanceof Error ? e.message : 'desconhecido'}` }, 502);
   }
 
-  // Parse JSON response — tmskin style cleaning
+  // Em modo response_mime_type: "application/json", o text já deve ser um JSON válido.
+  // Fazemos apenas um trim por segurança.
   let resultadoJson: ResultadoCorrecao | ResultadoDetectorIA;
   try {
-    let responseText = aiText;
-    // Limpar possíveis blocos de código markdown
-    responseText = responseText.replace(/```json\n?/, '').replace(/```\n?/, '').trim();
-    
-    // Fallback if there's still junk (like my previous index search)
-    const startIdx = responseText.indexOf('{');
-    const endIdx = responseText.lastIndexOf('}');
-    if (startIdx !== -1 && endIdx !== -1) {
-      responseText = responseText.substring(startIdx, endIdx + 1);
-    }
-    
-    resultadoJson = JSON.parse(responseText);
+    const cleanedText = aiText.trim();
+    resultadoJson = JSON.parse(cleanedText);
   } catch (e) {
     console.error('Falha ao parsear JSON da IA:', aiText);
-    return json({ 
-      error: 'A análise retornou um formato inesperado. Tente novamente.', 
-      detalhes: e instanceof Error ? e.message : 'JSON inválido',
-      tamanho_recebido: aiText.length,
-      raw: aiText // Retornar tudo para ver onde corta
-    }, 502);
+    
+    // Tentar fallback apenas se falhar o parse direto
+    try {
+      const startIdx = aiText.indexOf('{');
+      const endIdx = aiText.lastIndexOf('}');
+      if (startIdx !== -1 && endIdx !== -1) {
+        resultadoJson = JSON.parse(aiText.substring(startIdx, endIdx + 1));
+      } else {
+        throw e;
+      }
+    } catch (fallbackError) {
+      return json({ 
+        error: 'A análise retornou um formato inesperado. Tente novamente.', 
+        detalhes: fallbackError instanceof Error ? fallbackError.message : 'JSON inválido',
+        tamanho_recebido: aiText.length,
+        raw: aiText
+      }, 502);
+    }
   }
 
   // Save to D1
