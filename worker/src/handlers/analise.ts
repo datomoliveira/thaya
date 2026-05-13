@@ -68,6 +68,10 @@ async function callGemini(
         { inlineData: { mimeType, data: imageBase64 } },
       ],
     }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 1000,
+    },
   };
 
   let res: Response;
@@ -76,7 +80,7 @@ async function callGemini(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-    }, 28000);
+    }, 29000);
   } catch (e: unknown) {
     if (e instanceof Error && e.name === 'AbortError') {
       throw new Error('Tempo limite de resposta da API excedido. Tente novamente.');
@@ -105,6 +109,10 @@ async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: st
         { inlineData: { mimeType, data: audioBase64 } },
       ],
     }],
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 800,
+    },
   };
   try {
     const res = await fetchWithTimeout(url, {
