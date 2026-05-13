@@ -58,8 +58,10 @@ async function callGemini(
   imageBase64: string,
   mimeType: string,
   prompt: string,
+  modelName: string = 'gemini-2.5-flash',
+  maxTokens: number = 6000,
 ): Promise<{ text: string; tokensUsados: number }> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       role: 'user',
@@ -70,7 +72,7 @@ async function callGemini(
     }],
     generationConfig: {
       temperature: 0.1,
-      maxOutputTokens: 6000,
+      maxOutputTokens: maxTokens,
       response_mime_type: "application/json",
     },
     safetySettings: [
@@ -253,11 +255,14 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     ? PROMPT_CORRECAO(criterios || 'Critérios gerais de boa escrita: coesão, coerência, gramática, argumentação, clareza.')
     : PROMPT_DETECTOR_IA;
 
-  // Call AI
+  // Call AI with hybrid strategy
   let aiText: string;
   let tokensUsados: number;
   try {
-    const result = await callGemini(env.GEMINI_API_KEY, imagem_base64, mime_type, prompt);
+    const modelToUse = modo === 'correcao' ? 'gemini-2.5-flash' : 'gemini-2.0-flash';
+    const maxTokensToUse = modo === 'correcao' ? 6000 : 1024;
+    
+    const result = await callGemini(env.GEMINI_API_KEY, imagem_base64, mime_type, prompt, modelToUse, maxTokensToUse);
     aiText = result.text;
     tokensUsados = result.tokensUsados;
   } catch (e) {
