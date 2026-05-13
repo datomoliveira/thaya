@@ -24,7 +24,19 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
   return (
     <div className="space-y-6">
       {/* Grade stamp */}
-      <div className="flex items-start gap-6 flex-wrap">
+      <div className="flex items-center gap-6 flex-wrap">
+        {isCorrecao && (
+          <div className="flex-shrink-0 transform -rotate-12">
+            <div className={`
+              w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center
+              ${resultado.nota_geral >= 6 ? 'border-green-700 text-green-800' : 'border-red-700 text-red-800'}
+              font-display font-bold uppercase tracking-tighter bg-white/50
+            `}>
+              <span className="text-[10px] leading-none mb-1">Resultado</span>
+              <span className="text-xl leading-none mt-1">{resultado.nota_geral.toFixed(1)}</span>
+            </div>
+          </div>
+        )}
         <div className="flex-1 min-w-48">
           <h3 className="font-display text-2xl font-bold text-pen-blue">Nota Geral</h3>
           <p className="font-body text-ink-light mt-1">
@@ -239,19 +251,7 @@ export default function Resultado() {
           </div>
         </div>
 
-        {/* Approval Stamp */}
-        <div className="absolute top-24 left-20 sm:left-32 z-10 pointer-events-none transform -rotate-12">
-          {isCorrecao && (
-            <div className={`
-              w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center
-              ${resultado.nota_geral >= 6 ? 'border-green-600/40 text-green-700/60' : 'border-red-600/40 text-red-700/60'}
-              font-display font-bold uppercase tracking-tighter
-            `}>
-              <span className="text-[10px] leading-none mb-1">Resultado</span>
-              <span className="text-xl leading-none mt-1">{resultado.nota_geral.toFixed(1)}</span>
-            </div>
-          )}
-        </div>
+
 
         {/* Content */}
         {isCorrecao ? (
