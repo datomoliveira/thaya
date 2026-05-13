@@ -101,8 +101,16 @@ async function callGemini(
   }
 
   const data = await res.json() as GeminiResponse;
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  
+  // JOIN ALL PARTS: Gemini can return text split into multiple parts
+  const text = data.candidates?.[0]?.content?.parts?.map(p => p.text).join('') ?? '';
   const tokensUsados = data.usageMetadata?.totalTokenCount ?? 0;
+  
+  if (!text) {
+    const finishReason = data.candidates?.[0]?.finishReason;
+    throw new Error(`A IA não retornou nenhum texto. Motivo: ${finishReason || 'desconhecido'}`);
+  }
+  
   return { text, tokensUsados };
 }
 
@@ -268,7 +276,9 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
     console.error('Falha ao parsear JSON da IA:', aiText);
     return json({ 
       error: 'A análise retornou um formato inesperado. Tente novamente.', 
-      raw: aiText.substring(0, 4000)
+      detalhes: e instanceof Error ? e.message : 'JSON inválido',
+      tamanho_recebido: aiText.length,
+      raw: aiText // Retornar tudo para ver onde corta
     }, 502);
   }
 
