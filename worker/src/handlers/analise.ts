@@ -99,6 +99,9 @@ async function callGemini(
 
   if (!res.ok) {
     const err = await res.text();
+    if (res.status === 503) {
+      throw new Error('O modelo está com alta demanda no momento (comum no plano gratuito). Por favor, aguarde alguns instantes e tente novamente.');
+    }
     throw new Error(`API de análise retornou erro ${res.status}: ${err}`);
   }
 

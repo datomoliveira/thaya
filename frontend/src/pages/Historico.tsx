@@ -74,7 +74,7 @@ export default function Historico() {
                       {a.modo === 'correcao' ? 'Correção' : 'Detector IA'}
                     </span>
                     <span className="font-body text-xs text-ink-light">
-                      {new Date(a.criado_em).toLocaleString('pt-BR')}
+                      {new Date(a.criado_em.replace(' ', 'T') + 'Z').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
                     </span>
                   </div>
                   <p className="font-body text-sm text-ink truncate">

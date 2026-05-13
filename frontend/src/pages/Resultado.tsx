@@ -238,7 +238,7 @@ export default function Resultado() {
             {isCorrecao ? 'Laudo de Correção' : 'Relatório Detector IA'}
           </h1>
           <div className="font-body text-xs text-ink-light mt-1">
-            {new Date(analise.criado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })} · {analise.tokens_usados} tokens
+            {new Date(analise.criado_em.replace(' ', 'T') + 'Z').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })} · {analise.tokens_usados} tokens
           </div>
         </div>
 
