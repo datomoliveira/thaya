@@ -1,17 +1,16 @@
 /**
  * SpiralBinding — Modern Smart Notebook style with EXACTLY 9 discs.
- * Includes high-fidelity black discs on the left and a premium elastic strap on the right.
+ * Optimized for mobile using CSS variables from index.css.
  */
 export default function SpiralBinding() {
-  // Exactly 9 discs as requested
   const discs = Array.from({ length: 9 });
 
   return (
     <>
       {/* 1. LEFT SIDE DISCS (Discbound style) */}
       <div
-        className="fixed left-0 top-0 bottom-0 z-[60] flex flex-col justify-around py-20 pointer-events-none"
-        style={{ width: 64 }}
+        className="fixed left-0 top-0 bottom-0 z-[60] flex flex-col justify-around py-12 sm:py-20 pointer-events-none"
+        style={{ width: 'var(--notebook-disc-width)' }}
       >
         {discs.map((_, i) => (
           <div
@@ -19,17 +18,17 @@ export default function SpiralBinding() {
             className="relative flex items-center justify-center"
             style={{ height: '8%' }}
           >
-            {/* The Disc - Pure Black 3D look */}
+            {/* The Disc - Pure Black 3D look - Responsive size */}
             <div
               style={{
-                width: 46,
-                height: 46,
+                width: 'var(--disc-size)',
+                height: 'var(--disc-size)',
                 borderRadius: '50%',
                 background: 'radial-gradient(circle at 30% 30%, #2a2a2a 0%, #000000 100%)',
                 boxShadow: `
-                  6px 6px 14px rgba(0,0,0,0.8), 
+                  4px 4px 10px rgba(0,0,0,0.8), 
                   inset -1px -1px 3px rgba(255,255,255,0.05), 
-                  inset 4px 4px 8px rgba(0,0,0,0.9)
+                  inset 2px 2px 5px rgba(0,0,0,0.9)
                 `,
                 border: '1px solid #000',
                 position: 'relative',
@@ -41,11 +40,11 @@ export default function SpiralBinding() {
               {/* Central Hole Detail */}
               <div 
                 style={{
-                  width: 14,
-                  height: 14,
+                  width: '25%',
+                  height: '25%',
                   borderRadius: '50%',
                   background: '#000',
-                  boxShadow: 'inset 0 0 5px rgba(255,255,255,0.05)'
+                  boxShadow: 'inset 0 0 3px rgba(255,255,255,0.05)'
                 }}
               />
               
@@ -53,15 +52,14 @@ export default function SpiralBinding() {
               <div 
                 style={{
                   position: 'absolute',
-                  right: -12,
+                  right: '-15%',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  width: 22,
-                  height: 16,
+                  width: '40%',
+                  height: '35%',
                   background: '#000',
-                  borderRadius: '3px',
-                  boxShadow: 'inset 4px 0 8px rgba(0,0,0,0.9)',
-                  borderRight: '1px solid rgba(255,255,255,0.03)'
+                  borderRadius: '2px',
+                  boxShadow: 'inset 2px 0 5px rgba(0,0,0,0.9)',
                 }}
               />
             </div>
@@ -69,29 +67,28 @@ export default function SpiralBinding() {
         ))}
       </div>
 
-      {/* 2. LEFT SIDE BINDING STRIP */}
+      {/* 2. LEFT SIDE BINDING STRIP (The leather part holding the discs) */}
       <div
         className="fixed left-0 top-0 bottom-0 z-[55] pointer-events-none"
         style={{
-          width: 52,
+          width: 'calc(var(--notebook-disc-width) - 10px)',
           background: 'linear-gradient(90deg, #050505 0%, #1a1a1a 70%, #0f0f0f 100%)',
-          boxShadow: '10px 0 25px rgba(0,0,0,0.7)',
+          boxShadow: '8px 0 20px rgba(0,0,0,0.7)',
           borderRight: '1px solid rgba(255,255,255,0.05)'
         }}
       />
 
       {/* 3. RIGHT SIDE ELASTIC STRAP */}
       <div
-        className="fixed right-6 top-0 bottom-0 z-[60] pointer-events-none flex items-center justify-center"
-        style={{ width: 36 }}
+        className="fixed right-0 top-0 bottom-0 z-[60] pointer-events-none flex items-center justify-center mr-2 sm:mr-6"
+        style={{ width: 'var(--notebook-strap-width)' }}
       >
-        {/* The high-quality woven band */}
         <div
           style={{
-            width: 28,
+            width: '70%',
             height: '100%',
             background: 'linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%)',
-            boxShadow: '-4px 0 15px rgba(0,0,0,0.7), 4px 0 15px rgba(0,0,0,0.7)',
+            boxShadow: '-2px 0 10px rgba(0,0,0,0.7), 2px 0 10px rgba(0,0,0,0.7)',
             borderLeft: '1px solid #000',
             borderRight: '1px solid #000',
             position: 'relative'
@@ -106,20 +103,21 @@ export default function SpiralBinding() {
             }}
           />
 
-          {/* THE 'T' BRANDING (Thaya) */}
+          {/* THE 'T' BRANDING (Thaya) - Responsive size */}
           <div
             className="absolute top-2/3 left-1/2 -translate-x-1/2 flex items-center justify-center"
             style={{
-              width: 56,
-              height: 56,
+              width: 'min(48px, 150%)',
+              height: 'min(48px, 150%)',
+              aspectRatio: '1/1',
               borderRadius: '50%',
               background: 'radial-gradient(circle at 30% 30%, #e0e0e0 0%, #777 100%)',
               boxShadow: `
-                0 8px 20px rgba(0,0,0,0.9), 
-                inset 2px 2px 6px rgba(255,255,255,0.9), 
-                inset -3px -3px 10px rgba(0,0,0,0.5)
+                0 4px 10px rgba(0,0,0,0.9), 
+                inset 1px 1px 3px rgba(255,255,255,0.9), 
+                inset -2px -2px 5px rgba(0,0,0,0.5)
               `,
-              border: '2px solid #444',
+              border: '1px solid #444',
               zIndex: 61
             }}
           >
@@ -127,10 +125,10 @@ export default function SpiralBinding() {
               style={{
                 fontFamily: '"Playfair Display", serif',
                 fontWeight: 900,
-                fontSize: '2.2rem',
+                fontSize: 'clamp(1rem, 4vw, 1.8rem)',
                 color: '#111',
                 textShadow: '1px 1px 0px rgba(255,255,255,0.7)',
-                letterSpacing: '-1.5px'
+                letterSpacing: '-1px'
               }}
             >
               T
@@ -139,10 +137,11 @@ export default function SpiralBinding() {
         </div>
       </div>
 
-      {/* 4. RED MARGIN LINE */}
+      {/* 4. RED MARGIN LINE - Moves with padding */}
       <div
-        className="fixed left-[84px] top-0 bottom-0 z-40 pointer-events-none"
+        className="fixed top-0 bottom-0 z-40 pointer-events-none"
         style={{
+          left: 'calc(var(--notebook-padding-left) + 4px)',
           width: 2,
           background: 'rgba(179, 45, 32, 0.15)',
         }}

@@ -9,22 +9,25 @@
   --cream: #F4EFE6;
   --ivory: #FCF8F2;
   --caramel: #8C6239;
-  --caramel-dark: #5C3A21;
   --leather: #3D2B1F;
-  --leather-light: #5A4030;
-  --pen-blue: #1C3F60;
-  --pen-blue-light: #2A5A8C;
-  --red: #B32D20;
-  --red-light: #D94535;
-  --parchment: #E2D7C1;
-  --border: #C8B99A;
   --ink: #261612;
-  --ink-light: #4A332A;
-  --shadow-color: rgba(61, 43, 31, 0.4);
-  /* Spiral */
-  --spiral-width: 52px;
-  --spiral-color: #888;
-  --spiral-ring-color: #aaa;
+  
+  /* Responsive Notebook Layout Variables */
+  --notebook-disc-width: 64px;
+  --notebook-strap-width: 40px;
+  --notebook-padding-left: 80px;
+  --notebook-padding-right: 60px;
+  --disc-size: 46px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --notebook-disc-width: 48px;
+    --notebook-strap-width: 28px;
+    --notebook-padding-left: 56px;
+    --notebook-padding-right: 36px;
+    --disc-size: 34px;
+  }
 }
 
 /* ===== Base ===== */
@@ -48,16 +51,12 @@ body {
 
 /* Notebook layout wrapper for ALL pages */
 .notebook-layout {
-  padding-left: 80px; /* Space for discs */
-  padding-right: 60px; /* Space for elastic strap */
+  padding-left: var(--notebook-padding-left);
+  padding-right: var(--notebook-padding-right);
   min-height: 100vh;
-}
-
-@media (max-width: 640px) {
-  .notebook-layout {
-    padding-left: 60px;
-    padding-right: 40px;
-  }
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Rings rendered as SVG circles overlaid (Deprecated in favor of SpiralBinding.tsx) */
