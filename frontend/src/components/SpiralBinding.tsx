@@ -63,10 +63,9 @@ export default function SpiralBinding() {
         }}
       />
 
-      {/* 3. RIGHT SIDE ELASTIC STRAP */}
       <div
         className="fixed right-0 inset-y-0 z-[100] pointer-events-none flex items-center justify-center mr-2 sm:mr-6"
-        style={{ width: 'var(--notebook-strap-width)', WillChange: 'transform' }}
+        style={{ width: 'var(--notebook-strap-width)', willChange: 'transform' }}
       >
         <div
           style={{

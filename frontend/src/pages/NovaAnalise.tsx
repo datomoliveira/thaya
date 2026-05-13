@@ -287,25 +287,30 @@ export default function NovaAnalise() {
               onChange={handleFileChange}
             />
 
-            {/* Action buttons */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Action buttons — Optimized for mobile with clearer separation */}
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => cameraInputRef.current?.click()}
-                className="btn-secondary px-4 py-3 text-sm flex-col gap-1 h-auto"
-                style={{ flexDirection: 'column' }}
+                className="btn-primary px-6 py-4 flex flex-col items-center gap-2 h-auto"
               >
-                <span className="text-2xl">📸</span>
-                <span>Câmera</span>
+                <span className="text-3xl">📸</span>
+                <div className="flex flex-col">
+                  <span className="font-bold">Usar Câmera</span>
+                  <span className="text-[10px] opacity-80 font-body italic">Tirar foto agora</span>
+                </div>
               </button>
+              
               <button
                 type="button"
                 onClick={() => uploadInputRef.current?.click()}
-                className="btn-secondary px-4 py-3 text-sm flex-col gap-1 h-auto"
-                style={{ flexDirection: 'column' }}
+                className="btn-secondary px-6 py-4 flex flex-col items-center gap-2 h-auto"
               >
-                <span className="text-2xl">📂</span>
-                <span>Upload</span>
+                <span className="text-3xl">📂</span>
+                <div className="flex flex-col">
+                  <span className="font-bold">Upload de Arquivo</span>
+                  <span className="text-[10px] opacity-80 font-body italic">Galeria, PDF ou Imagem</span>
+                </div>
               </button>
             </div>
 
@@ -342,7 +347,7 @@ export default function NovaAnalise() {
                   onClick={() => setModo('correcao')}
                   className={`toggle-option flex-1 text-center ${modo === 'correcao' ? 'active' : ''}`}
                 >
-                  ✏️ Correção
+                  <span className="text-correction-red mr-1">🖋️</span> Correção
                 </button>
                 <button
                   type="button"
