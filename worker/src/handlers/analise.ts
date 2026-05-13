@@ -12,13 +12,12 @@ function json(data: unknown, status = 200): Response {
 }
 
 const PROMPT_CORRECAO = (criterios: string) => `
-Você é um corretor de redações humano. Analise a imagem e siga estes critérios: ${criterios}
-IMPORTANTE: Seja cauteloso com erros ortográficos. Se uma palavra parecer errada, considere que o leitor de imagem (OCR) pode ter falhado antes de penalizar o autor. Só considere erro se houver certeza.
-
-Retorne EXCLUSIVAMENTE um JSON:
+Analise a redação seguindo estes critérios: ${criterios}
+Seja ultra-conciso nos comentários. Não use introduções.
+Retorne APENAS um JSON (formato estrito):
 {
   "nota_geral": <0-10>,
-  "criterios": [{ "nome": "...", "nota": <0-10>, "comentario": "..." }],
+  "criterios": [{ "nome": "...", "nota": <0-10>, "comentario": "breve comentário" }],
   "pontos_fortes": ["..."],
   "sugestoes_melhoria": ["..."]
 }`;
@@ -74,6 +73,12 @@ async function callGemini(
       maxOutputTokens: 2048,
       response_mime_type: "application/json",
     },
+    safetySettings: [
+      { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+      { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+      { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+      { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+    ],
   };
 
   let res: Response;
