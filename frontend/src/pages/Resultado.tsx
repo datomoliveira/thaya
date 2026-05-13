@@ -191,7 +191,6 @@ export default function Resultado() {
   const [analise, setAnalise] = useState<Analise | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [aba, setAba] = useState<'resultado' | 'transcricao'>('resultado');
 
   useEffect(() => {
     if (!id) return;
@@ -258,25 +257,12 @@ export default function Resultado() {
           )}
         </div>
 
-        {/* Tabs for correction mode */}
-        {isCorrecao && (
-          <div className="toggle-wrapper w-full max-w-xs mb-6">
-            <button type="button" onClick={() => setAba('resultado')} className={`toggle-option flex-1 text-center ${aba === 'resultado' ? 'active' : ''}`}>Resultado</button>
-            <button type="button" onClick={() => setAba('transcricao')} className={`toggle-option flex-1 text-center ${aba === 'transcricao' ? 'active' : ''}`}>Transcrição</button>
-          </div>
-        )}
-
         {/* Content */}
-        {isCorrecao && aba === 'resultado' && <ResultadoCorrecaoView resultado={resultado as ResultadoCorrecao} />}
-        {isCorrecao && aba === 'transcricao' && (
-          <div className="paper-card p-5">
-            <h4 className="font-display text-lg font-semibold text-pen-blue mb-3">📄 Texto Transcrito</h4>
-            <div className="lined-paper px-4 py-3 rounded font-body text-sm text-ink leading-8 whitespace-pre-wrap">
-              {(resultado as ResultadoCorrecao).texto_transcrito}
-            </div>
-          </div>
+        {isCorrecao ? (
+          <ResultadoCorrecaoView resultado={resultado as ResultadoCorrecao} />
+        ) : (
+          <ResultadoDetectorView resultado={resultado as ResultadoDetectorIA} />
         )}
-        {!isCorrecao && <ResultadoDetectorView resultado={resultado as ResultadoDetectorIA} />}
 
         {/* Actions */}
         <div className="flex gap-3 mt-8">
