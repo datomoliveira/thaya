@@ -12,8 +12,14 @@ function json(data: unknown, status = 200): Response {
 }
 
 const PROMPT_CORRECAO = (criterios: string) => `
-Analise a redação seguindo estes critérios: ${criterios}
-Seja ultra-conciso. Se houver erros ortográficos ou gramaticais, cite-os nos 'trechos_problematicos'.
+Analise a redação manuscrita com cautela.
+CRITÉRIOS PRIORITÁRIOS: ${criterios}
+
+INSTRUÇÕES IMPORTANTES:
+1. OCR: Não confunda caligrafia com erro. Só aponte erro se tiver certeza absoluta.
+2. FORMATO DE ERRO: Em 'trechos_problematicos', use "palavra_errada -> sugestão". NUNCA aponte erro se a sugestão for igual ao original.
+3. ESTILO: Seja ultra-conciso e técnico.
+
 Retorne APENAS um JSON (formato estrito):
 {
   "nota_geral": <0-10>,
@@ -21,12 +27,13 @@ Retorne APENAS um JSON (formato estrito):
     { 
       "nome": "...", 
       "nota": <0-10>, 
-      "comentario": "breve feedback",
-      "trechos_problematicos": ["erro 1", "erro 2"] 
+      "comentario": "...",
+      "trechos_problematicos": [] 
     }
   ],
-  "pontos_fortes": ["..."],
-  "sugestoes_melhoria": ["..."]
+  "pontos_fortes": [],
+  "sugestoes_melhoria": [],
+  "texto_transcrito": "transcrição completa do texto lido"
 }`;
 
 const PROMPT_DETECTOR_IA = `
