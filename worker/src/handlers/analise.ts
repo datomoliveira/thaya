@@ -72,7 +72,7 @@ async function callGemini(
   imageBase64: string,
   mimeType: string,
   prompt: string,
-  modelName: string = 'gemini-2.0-flash',
+  modelName: string = 'gemini-2.5-flash',
   maxTokens: number = 6000,
 ): Promise<{ text: string; tokensUsados: number }> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
@@ -141,7 +141,7 @@ async function callGemini(
 }
 
 async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       role: 'user',
@@ -277,7 +277,7 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
   let aiText: string;
   let tokensUsados: number;
   try {
-    const modelToUse = modo === 'correcao' ? 'gemini-2.5-flash' : 'gemini-2.0-flash';
+    const modelToUse = 'gemini-2.5-flash';
     const maxTokensToUse = modo === 'correcao' ? 8192 : 4096;
     
     const result = await callGemini(env.GEMINI_API_KEY, imagem_base64, mime_type, prompt, modelToUse, maxTokensToUse);
