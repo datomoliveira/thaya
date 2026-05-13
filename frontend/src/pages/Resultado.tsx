@@ -40,7 +40,7 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
       <div className="paper-card p-5">
         <h4 className="font-display text-lg font-semibold text-pen-blue mb-4">Avaliação por Critério</h4>
         <div className="space-y-4">
-          {resultado.criterios.map((c) => (
+          {(resultado.criterios || []).map((c) => (
             <div key={c.nome}>
               <div className="flex justify-between items-center mb-1">
                 <span className="font-body text-sm font-medium text-ink">{c.nome}</span>
@@ -50,7 +50,7 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
               </div>
               <ProgressBar value={c.nota} />
               <p className="font-body text-sm text-ink-light mt-1 italic">{c.comentario}</p>
-              {c.trechos_problematicos.length > 0 && (
+              {c.trechos_problematicos && c.trechos_problematicos.length > 0 && (
                 <div className="mt-2 space-y-1">
                   {c.trechos_problematicos.map((t, i) => (
                     <div key={i} className="red-mark font-body text-xs bg-red-50 px-2 py-1 rounded">
@@ -65,7 +65,7 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
       </div>
 
       {/* Strengths */}
-      {resultado.pontos_fortes.length > 0 && (
+      {resultado.pontos_fortes && resultado.pontos_fortes.length > 0 && (
         <div className="paper-card p-5 border-l-4 border-green-500">
           <h4 className="font-display text-lg font-semibold text-green-700 mb-3">✅ Pontos Fortes</h4>
           <ul className="space-y-2">
@@ -79,7 +79,7 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
       )}
 
       {/* Suggestions */}
-      {resultado.sugestoes_melhoria.length > 0 && (
+      {resultado.sugestoes_melhoria && resultado.sugestoes_melhoria.length > 0 && (
         <div className="paper-card p-5 border-l-4 border-correction-red">
           <h4 className="font-display text-lg font-semibold text-correction-red mb-3">🖊️ Sugestões de Melhoria</h4>
           <ul className="space-y-2">
@@ -221,7 +221,12 @@ export default function Resultado() {
     </div>
   );
 
-  const resultado = JSON.parse(analise.resultado_json || '{}');
+  let resultado;
+  try {
+    resultado = JSON.parse(analise.resultado_json || '{}');
+  } catch {
+    resultado = { error: 'Dados corrompidos' };
+  }
   const isCorrecao = analise.modo === 'correcao';
 
   return (
