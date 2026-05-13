@@ -100,15 +100,22 @@ async function callGemini(
     throw new Error(`API de análise retornou erro ${res.status}: ${err}`);
   }
 
-  const data = await res.json() as GeminiResponse;
+  const data = await res.json() as any;
   
-  // JOIN ALL PARTS: Gemini can return text split into multiple parts
-  const text = data.candidates?.[0]?.content?.parts?.map(p => p.text).join('') ?? '';
+  // LOG TOTAL DA RESPOSTA NO CONSOLE DO WORKER
+  console.log('DEBUG_GEMINI_RESPONSE:', JSON.stringify(data));
+  
+  const candidate = data.candidates?.[0];
+  if (!candidate) {
+    throw new Error('Nenhum candidato retornado pela API.');
+  }
+
+  const parts = candidate.content?.parts || [];
+  const text = parts.map((p: any) => p.text || '').join('');
   const tokensUsados = data.usageMetadata?.totalTokenCount ?? 0;
   
   if (!text) {
-    const finishReason = data.candidates?.[0]?.finishReason;
-    throw new Error(`A IA não retornou nenhum texto. Motivo: ${finishReason || 'desconhecido'}`);
+    throw new Error(`Texto vazio. Reason: ${candidate.finishReason || 'unknown'}. Parts: ${parts.length}`);
   }
   
   return { text, tokensUsados };
