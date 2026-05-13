@@ -77,14 +77,20 @@ export async function handleRegister(request: Request, env: Env): Promise<Respon
 export async function handleLogin(request: Request, env: Env): Promise<Response> {
   const ip = request.headers.get('CF-Connecting-IP') || '0.0.0.0';
 
-  const allowed = await checkLoginRateLimit(env.DB, ip);
-  if (!allowed) {
-    return json({ error: 'Muitas tentativas de login. Aguarde 1 hora.' }, 429);
-  }
-
   try {
-    const { email, senha } = await request.json<{ email: string; senha: string }>();
+    const body = await request.json<{ email: string; senha: string }>();
+    const { email, senha } = body;
     if (!email || !senha) return json({ error: 'Email e senha são obrigatórios.' }, 400);
+
+    // Exempt admin from rate limit
+    const isAdmin = email.toLowerCase() === (env.ADMIN_EMAIL || '').toLowerCase();
+
+    if (!isAdmin) {
+      const allowed = await checkLoginRateLimit(env.DB, ip);
+      if (!allowed) {
+        return json({ error: 'Muitas tentativas de login. Aguarde 1 hora.' }, 429);
+      }
+    }
 
     const user = await env.DB.prepare('SELECT * FROM usuarios WHERE email = ?').bind(email).first<{
       id: string; email: string; senha_hash: string; role: 'user' | 'admin'; aprovado: number;
