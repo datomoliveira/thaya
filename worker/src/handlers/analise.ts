@@ -60,7 +60,7 @@ async function callGemini(
   mimeType: string,
   prompt: string,
 ): Promise<{ text: string; tokensUsados: number }> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       role: 'user',
@@ -101,7 +101,7 @@ async function callGemini(
 }
 
 async function transcribeAudio(apiKey: string, audioBase64: string, mimeType: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const body = {
     contents: [{
       role: 'user',
