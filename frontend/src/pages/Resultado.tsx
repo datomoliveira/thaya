@@ -243,7 +243,7 @@ export default function Resultado() {
         </div>
 
         {/* Approval Stamp */}
-        <div className="absolute top-24 right-4 sm:right-8 z-10 pointer-events-none transform rotate-12">
+        <div className="absolute top-24 left-4 sm:left-8 z-10 pointer-events-none transform -rotate-12">
           {isCorrecao && (
             <div className={`
               w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center
@@ -251,7 +251,6 @@ export default function Resultado() {
               font-display font-bold uppercase tracking-tighter
             `}>
               <span className="text-[10px] leading-none mb-1">Resultado</span>
-              <span className="text-sm leading-none">{resultado.nota_geral >= 6 ? 'Aprovado' : 'Reprovado'}</span>
               <span className="text-xl leading-none mt-1">{resultado.nota_geral.toFixed(1)}</span>
             </div>
           )}
