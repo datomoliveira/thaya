@@ -64,7 +64,7 @@ export default function SpiralBinding() {
       />
 
       <div
-        className="fixed right-0 inset-y-0 z-[100] pointer-events-none flex items-center justify-center mr-2 sm:mr-6"
+        className="fixed right-0 inset-y-0 z-[100] pointer-events-none flex items-center justify-center"
         style={{ width: 'var(--notebook-strap-width)', willChange: 'transform' }}
       >
         <div
