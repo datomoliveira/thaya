@@ -12,7 +12,8 @@ function json(data: unknown, status = 200): Response {
 }
 
 const PROMPT_CORRECAO = (criterios: string) => `
-Você é um corretor de redações. Analise a imagem e siga estes critérios: ${criterios}
+Você é um corretor de redações humano. Analise a imagem e siga estes critérios: ${criterios}
+IMPORTANTE: Seja cauteloso com erros ortográficos. Se uma palavra parecer errada, considere que o leitor de imagem (OCR) pode ter falhado antes de penalizar o autor. Só considere erro se houver certeza.
 
 Retorne EXCLUSIVAMENTE um JSON:
 {

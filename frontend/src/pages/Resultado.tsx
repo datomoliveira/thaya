@@ -239,8 +239,23 @@ export default function Resultado() {
             {isCorrecao ? 'Laudo de Correção' : 'Relatório Detector IA'}
           </h1>
           <div className="font-body text-xs text-ink-light mt-1">
-            {new Date(analise.criado_em).toLocaleString('pt-BR')} · {analise.tokens_usados} tokens
+            {new Date(analise.criado_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })} · {analise.tokens_usados} tokens
           </div>
+        </div>
+
+        {/* Approval Stamp */}
+        <div className="absolute top-24 right-4 sm:right-8 z-10 pointer-events-none transform rotate-12">
+          {isCorrecao && (
+            <div className={`
+              w-24 h-24 rounded-full border-4 flex flex-col items-center justify-center
+              ${resultado.nota_geral >= 6 ? 'border-green-600/40 text-green-700/60' : 'border-red-600/40 text-red-700/60'}
+              font-display font-bold uppercase tracking-tighter
+            `}>
+              <span className="text-[10px] leading-none mb-1">Resultado</span>
+              <span className="text-sm leading-none">{resultado.nota_geral >= 6 ? 'Aprovado' : 'Reprovado'}</span>
+              <span className="text-xl leading-none mt-1">{resultado.nota_geral.toFixed(1)}</span>
+            </div>
+          )}
         </div>
 
         {/* Tabs for correction mode */}
