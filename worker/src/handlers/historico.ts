@@ -37,7 +37,8 @@ export async function handleUserStats(request: Request, env: Env): Promise<Respo
   const payload = await verifyJWT(token, env.JWT_SECRET);
   if (!payload) return json({ error: 'Token inválido.' }, 401);
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Usando fuso de Brasília para consistência
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
   const usuario = await env.DB.prepare(
     'SELECT analises_hoje, data_ultima_analise FROM usuarios WHERE id = ?',
   ).bind(payload.sub).first<{ analises_hoje: number; data_ultima_analise: string | null }>();

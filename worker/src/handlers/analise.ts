@@ -202,7 +202,8 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
   if (!payload) return json({ error: 'Token inválido ou expirado.' }, 401);
 
   // Check user daily limit
-  const today = new Date().toISOString().slice(0, 10);
+  // Check user daily limit - usando fuso de Brasília
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
   const usuario = await env.DB.prepare(
     'SELECT role, analises_hoje, data_ultima_analise, limite_diario FROM usuarios WHERE id = ?',
   ).bind(payload.sub).first<{ role: string; analises_hoje: number; data_ultima_analise: string | null; limite_diario: number }>();
@@ -317,11 +318,11 @@ export async function handleNovaAnalise(request: Request, env: Env): Promise<Res
   if (isNewDay) {
     await env.DB.prepare(
       'UPDATE usuarios SET analises_hoje = 1, data_ultima_analise = ? WHERE id = ?',
-    ).bind(new Date().toISOString(), payload.sub).run();
+    ).bind(today, payload.sub).run();
   } else {
     await env.DB.prepare(
       'UPDATE usuarios SET analises_hoje = analises_hoje + 1, data_ultima_analise = ? WHERE id = ?',
-    ).bind(new Date().toISOString(), payload.sub).run();
+    ).bind(today, payload.sub).run();
   }
 
   // Update global counter
