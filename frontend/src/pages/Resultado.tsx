@@ -25,7 +25,6 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
     <div className="space-y-6">
       {/* Grade stamp */}
       <div className="flex items-center gap-4 flex-wrap">
-        {isCorrecao && (
           <div className="flex-shrink-0 transform -rotate-12">
             <div className={`
               w-20 h-20 rounded-full border-4 flex flex-col items-center justify-center
@@ -36,7 +35,6 @@ function ResultadoCorrecaoView({ resultado }: { resultado: ResultadoCorrecao }) 
               <span className="text-lg leading-none mt-1">{resultado.nota_geral.toFixed(1)}</span>
             </div>
           </div>
-        )}
         <div>
           <h3 className="font-display text-2xl font-bold text-pen-blue">Nota Geral</h3>
           <p className="font-body text-ink-light mt-0.5">
